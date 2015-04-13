@@ -1,5 +1,5 @@
 /*
- * Copyright 2014 Square Inc.
+ * Copyright 2013 Square Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,17 +16,13 @@
 
 package flow;
 
-import android.content.Context;
-import android.view.ViewGroup;
+import android.os.Parcelable;
 
-/** @deprecated Use flow.path.PathContainerView from the flow-path module. */
-@Deprecated
-public interface PathContainerView extends Flow.Dispatcher {
-  ViewGroup getCurrentChild();
-
-  ViewGroup getContainerView();
-
-  Context getContext();
-
-  void dispatch(Flow.Traversal traversal, Flow.TraversalCallback callback);
+/**
+ * Used by Backstack to convert your state objects to and from instances of
+ * {@link android.os.Parcelable}.
+ */
+public interface StateParceler {
+  Parcelable wrap(Object instance);
+  Object unwrap(Parcelable parcelable);
 }

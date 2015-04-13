@@ -18,8 +18,8 @@ package flow;
 
 import android.content.Context;
 
-/** @deprecated Use {@link flow.path.PathContextFactory} from the flow-path module. */
-@Deprecated @SuppressWarnings("JavadocReference")
+/** @deprecated Use flow.path.PathContextFactory from the flow-path module. */
+@Deprecated
 public interface PathContextFactory {
   /**
    * Set up any services defined by this screen, and make them accessible via the context.

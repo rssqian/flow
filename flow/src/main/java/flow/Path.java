@@ -22,8 +22,8 @@ import android.view.LayoutInflater;
 import java.util.ArrayList;
 import java.util.List;
 
-/** @deprecated Use {@link flow.path.Path} from the flow-path module. */
-@Deprecated @SuppressWarnings("JavadocReference")
+/** @deprecated Use flow.path.Path from the flow-path module. */
+@Deprecated
 public abstract class Path {
   static final Path ROOT = new Path() {
   };

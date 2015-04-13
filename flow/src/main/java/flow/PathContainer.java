@@ -25,9 +25,9 @@ import java.util.Map;
  * Handles swapping paths within a container view, as well as flow mechanics, allowing supported
  * container views to be largely declarative.
  *
- * @deprecated use {@link flow.path.PathContainer} from the flow-path module.
+ * @deprecated use flow.path.PathContainer from the flow-path module.
  */
-@Deprecated @SuppressWarnings("JavadocReference")
+@Deprecated
 public abstract class PathContainer {
 
   /**

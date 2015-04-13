@@ -24,8 +24,8 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
-/** @deprecated Use {@link flow.path.PathContext} from the flow-path module. */
-@Deprecated @SuppressWarnings("JavadocReference")
+/** @deprecated Use flow.path.PathContext from the flow-path module. */
+@Deprecated
 public final class PathContext extends ContextWrapper {
   private static final String SERVICE_NAME = "PATH_CONTEXT";
   private final Path path;
