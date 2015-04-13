@@ -103,9 +103,15 @@ public final class Backstack implements Iterable<Object> {
     return backstack.size();
   }
 
-  public <T> T current() {
+  public <T> T top() {
     //noinspection unchecked
     return (T) backstack.peek().state;
+  }
+
+  /** @deprecated Use {@link #top()}. */
+  @Deprecated
+  public Path current() {
+    return top();
   }
 
   public ViewState currentViewState() {
