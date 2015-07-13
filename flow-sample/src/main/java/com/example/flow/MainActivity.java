@@ -18,15 +18,16 @@ package com.example.flow;
 
 import android.app.ActionBar;
 import android.app.Activity;
+import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
 import android.view.Menu;
 import android.view.MenuItem;
+import com.example.flow.Paths.ConversationList;
 import com.example.flow.pathview.HandlesBack;
 import com.google.gson.Gson;
-import flow.FlowDelegate;
-import flow.History;
 import flow.Flow;
+import flow.History;
 import flow.path.Path;
 import flow.path.PathContainerView;
 
@@ -38,8 +39,6 @@ import static flow.Flow.TraversalCallback;
 public class MainActivity extends Activity implements Flow.Dispatcher {
   private PathContainerView container;
   private HandlesBack containerAsBackTarget;
-
-  private FlowDelegate flowSupport;
 
   /**
    * Pay attention to the {@link #setContentView} call here. It's creating a responsive layout
@@ -61,49 +60,16 @@ public class MainActivity extends Activity implements Flow.Dispatcher {
   @Override
   protected void onCreate(Bundle savedInstanceState) {
     super.onCreate(savedInstanceState);
-    GsonParceler parceler = new GsonParceler(new Gson());
-    @SuppressWarnings("deprecation") FlowDelegate.NonConfigurationInstance nonConfig =
-        (FlowDelegate.NonConfigurationInstance) getLastNonConfigurationInstance();
     final ActionBar actionBar = getActionBar();
     actionBar.setDisplayShowHomeEnabled(false);
     setContentView(R.layout.root_layout);
     container = (PathContainerView) findViewById(R.id.container);
     containerAsBackTarget = (HandlesBack) container;
-    flowSupport = FlowDelegate.onCreate(nonConfig, getIntent(), savedInstanceState, parceler,
-        History.single(new Paths.ConversationList()), this);
   }
 
   @Override protected void onNewIntent(Intent intent) {
     super.onNewIntent(intent);
-    flowSupport.onNewIntent(intent);
-  }
-
-  @Override protected void onResume() {
-    super.onResume();
-    flowSupport.onResume();
-  }
-
-  @Override protected void onPause() {
-    flowSupport.onPause();
-    super.onPause();
-  }
-
-  @SuppressWarnings("deprecation") // https://code.google.com/p/android/issues/detail?id=151346
-  @Override public Object onRetainNonConfigurationInstance() {
-    return flowSupport.onRetainNonConfigurationInstance();
-  }
-
-  @Override public Object getSystemService(String name) {
-    Object service = null;
-    if (flowSupport != null) {
-      service = flowSupport.getSystemService(name);
-    }
-    return service != null ? service : super.getSystemService(name);
-  }
-
-  @Override protected void onSaveInstanceState(Bundle outState) {
-    super.onSaveInstanceState(outState);
-    flowSupport.onSaveInstanceState(outState);
+    Flow.onNewIntent(intent, this);
   }
 
   @Override public boolean onCreateOptionsMenu(Menu menu) {
@@ -112,7 +78,7 @@ public class MainActivity extends Activity implements Flow.Dispatcher {
         .setOnMenuItemClickListener(new MenuItem.OnMenuItemClickListener() {
           @Override public boolean onMenuItemClick(MenuItem menuItem) {
             Flow.get(MainActivity.this).setHistory(History.emptyBuilder() //
-                .push(new Paths.ConversationList()) //
+                .push(new ConversationList()) //
                 .push(new Paths.FriendList()) //
                 .build(), FORWARD);
             return true;
@@ -130,9 +96,13 @@ public class MainActivity extends Activity implements Flow.Dispatcher {
     }
   }
 
+  @Override protected void attachBaseContext(Context newBase) {
+    super.attachBaseContext(Flow.install(newBase, this, new GsonParceler(new Gson()), History.single(new ConversationList()), this));
+  }
+
   @Override public void onBackPressed() {
     if (containerAsBackTarget.onBackPressed()) return;
-    if (flowSupport.onBackPressed()) return;
+    if (Flow.onBackPressed(this)) return;
     super.onBackPressed();
   }
 

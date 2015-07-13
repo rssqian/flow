@@ -16,28 +16,52 @@
 
 package flow;
 
+import android.app.Activity;
+import android.app.Application;
 import android.content.Context;
+import android.content.Intent;
 import android.view.View;
 import java.util.Iterator;
 
+import static flow.Preconditions.checkArgument;
 import static flow.Preconditions.checkNotNull;
+import static flow.Preconditions.checkState;
 import static java.lang.String.format;
 
 /** Holds the current truth, the history of screens, and exposes operations to change it. */
 public final class Flow {
-  private static final String FLOW_SERVICE = "flow.Flow.FLOW_SERVICE";
+  static final String HISTORY_KEY = InternalFragment.class.getSimpleName() + "_history";
 
   public static Flow get(View view) {
     return get(view.getContext());
   }
 
   public static Flow get(Context context) {
-    //noinspection ResourceType
-    return (Flow) context.getSystemService(FLOW_SERVICE);
+    return InternalContextWrapper.getFlow(context);
   }
 
-  public static boolean isFlowSystemService(String name) {
-    return FLOW_SERVICE.equals(name);
+  public static Context install(Context baseContext, final Activity activity,
+      final StateParceler parceler, final History defaultHistory, final Dispatcher dispatcher) {
+    checkState(InternalFragment.find(activity) == null,
+        "Flow is already installed in this Activity.");
+    final Application app = (Application) baseContext.getApplicationContext();
+    InternalFragment.install(app, activity, parceler, defaultHistory, dispatcher);
+    return new InternalContextWrapper(baseContext, activity);
+  }
+
+  public static boolean onBackPressed(Activity activity) {
+    return get(activity).goBack();
+  }
+
+  public static void setHistoryExtra(Intent intent, History history, StateParceler parceler) {
+    intent.putExtra(HISTORY_KEY, history.getParcelable(parceler));
+  }
+
+  public static void onNewIntent(Intent intent, Activity activity) {
+    checkArgument(intent != null, "intent may not be null");
+    if (intent.hasExtra(HISTORY_KEY)) {
+      InternalFragment.find(activity).onNewIntent(intent);
+    }
   }
 
   public enum Direction {
@@ -324,7 +348,8 @@ public final class Flow {
     }
 
     /**
-     * Must be synchronous and end with a call to {@link #dispatch} or {@link #onTraversalCompleted()}.
+     * Must be synchronous and end with a call to {@link #dispatch} or {@link
+     * #onTraversalCompleted()}.
      */
     abstract void doExecute();
   }
