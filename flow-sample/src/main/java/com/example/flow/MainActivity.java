@@ -25,38 +25,17 @@ import android.view.Menu;
 import android.view.MenuItem;
 import com.example.flow.Paths.ConversationList;
 import com.example.flow.pathview.HandlesBack;
-import com.google.gson.Gson;
 import flow.Flow;
 import flow.History;
-import flow.path.Path;
 import flow.path.PathContainerView;
 
 import static android.view.MenuItem.SHOW_AS_ACTION_ALWAYS;
 import static flow.Flow.Direction.FORWARD;
-import static flow.Flow.Traversal;
-import static flow.Flow.TraversalCallback;
 
-public class MainActivity extends Activity implements Flow.Dispatcher {
+public class MainActivity extends Activity {
   private PathContainerView container;
   private HandlesBack containerAsBackTarget;
 
-  /**
-   * Pay attention to the {@link #setContentView} call here. It's creating a responsive layout
-   * for us.
-   * <p>
-   * Notice that the app has two root_layout files. The main one, in {@code res/layout} is used by
-   * mobile devices and by tablets in portrait orientation. It holds a generic {@link
-   * com.example.flow.pathview.FramePathContainerView}.
-   * <p>
-   * The interesting one, loaded by tablets in landscape mode, is {@code res/layout-sw600dp-land}.
-   * It loads a {@link com.example.flow.view.TabletMasterDetailRoot}, with a master list on the
-   * left and a detail view on the right.
-   * <p>
-   * But this master activity knows nothing about those two view types. It only requires that
-   * the view loaded by {@code root_layout.xml} implements the {@link PathContainerView} interface,
-   * to render whatever is appropriate for the screens received from {@link Flow} via
-   * {@link #dispatch}.
-   */
   @Override
   protected void onCreate(Bundle savedInstanceState) {
     super.onCreate(savedInstanceState);
@@ -97,27 +76,12 @@ public class MainActivity extends Activity implements Flow.Dispatcher {
   }
 
   @Override protected void attachBaseContext(Context newBase) {
-    super.attachBaseContext(Flow.install(newBase, this, new GsonParceler(new Gson()), History.single(new ConversationList()), this));
+    super.attachBaseContext(Flow.installer().install(newBase, this));
   }
 
   @Override public void onBackPressed() {
     if (containerAsBackTarget.onBackPressed()) return;
     if (Flow.onBackPressed(this)) return;
     super.onBackPressed();
-  }
-
-  @Override public void dispatch(Traversal traversal, final TraversalCallback callback) {
-    Path path = traversal.destination.top();
-    setTitle(path.getClass().getSimpleName());
-    ActionBar actionBar = getActionBar();
-    boolean canGoBack = traversal.destination.size() > 1;
-    actionBar.setDisplayHomeAsUpEnabled(canGoBack);
-    actionBar.setHomeButtonEnabled(canGoBack);
-    container.dispatch(traversal, new TraversalCallback() {
-      @Override public void onTraversalCompleted() {
-        invalidateOptionsMenu();
-        callback.onTraversalCompleted();
-      }
-    });
   }
 }

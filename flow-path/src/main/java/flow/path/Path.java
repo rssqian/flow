@@ -22,6 +22,13 @@ import android.view.LayoutInflater;
 import java.util.ArrayList;
 import java.util.List;
 
+/**
+ * Represents an absolute path in the logical information tree of an app, from the root of the tree
+ * to a leaf, which is typically associated with app "screen" or "state". Each element in a path
+ * typically represents a scope, narrowing and adding information from root to leaf.
+ *
+ *
+ */
 public abstract class Path {
   static final Path ROOT = new Path() {
   };

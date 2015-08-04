@@ -17,7 +17,6 @@
 package flow;
 
 import android.app.Activity;
-import android.app.Application;
 import android.content.Context;
 import android.content.Intent;
 import android.view.View;
@@ -25,7 +24,6 @@ import java.util.Iterator;
 
 import static flow.Preconditions.checkArgument;
 import static flow.Preconditions.checkNotNull;
-import static flow.Preconditions.checkState;
 import static java.lang.String.format;
 
 /** Holds the current truth, the history of screens, and exposes operations to change it. */
@@ -40,13 +38,8 @@ public final class Flow {
     return InternalContextWrapper.getFlow(context);
   }
 
-  public static Context install(Context baseContext, final Activity activity,
-      final StateParceler parceler, final History defaultHistory, final Dispatcher dispatcher) {
-    checkState(InternalFragment.find(activity) == null,
-        "Flow is already installed in this Activity.");
-    final Application app = (Application) baseContext.getApplicationContext();
-    InternalFragment.install(app, activity, parceler, defaultHistory, dispatcher);
-    return new InternalContextWrapper(baseContext, activity);
+  public static Installer installer() {
+    return new Installer();
   }
 
   public static boolean onBackPressed(Activity activity) {
